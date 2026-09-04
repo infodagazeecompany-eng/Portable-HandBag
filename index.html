@@ -175,18 +175,16 @@ function goOrder(){document.getElementById('order').scrollIntoView({behavior:'sm
 document.getElementById('form').onsubmit=function(e){
   e.preventDefault();
   const form=this;
+
   if(!form.checkValidity()){
     form.reportValidity();
     return;
   }
 
   if(form.dataset.orderSubmitted === 'true') return;
-
-  const btn=form.querySelector('button[type="submit"]');
-  const oldText=btn ? btn.textContent : '';
-
   form.dataset.orderSubmitted='true';
 
+  const btn=form.querySelector('button[type="submit"]');
   if(btn){
     btn.disabled=true;
     btn.textContent='⏳ PLACING ORDER...';
@@ -198,34 +196,12 @@ document.getElementById('form').onsubmit=function(e){
 
   HTMLFormElement.prototype.submit.call(form);
 
+  // Give the Google Sheet request a moment to reach Apps Script,
+  // then send the customer to the dedicated thank-you URL.
   setTimeout(function(){
-    let msg=document.getElementById('orderSuccessMessage');
-    if(!msg){
-      msg=document.createElement('div');
-      msg.id='orderSuccessMessage';
-      msg.style.cssText='margin:14px 0 0;padding:13px 15px;border-radius:12px;background:#e9f9ee;color:#176b36;border:1px solid #a9dfb9;font-weight:800;text-align:center;line-height:1.45;';
-      form.appendChild(msg);
-    }
-
-    msg.innerHTML='✅ <b>Order Placed Successfully!</b><br><span style="font-weight:600;font-size:13px;">Aap ka order receive ho gaya hai. Please dobara order submit na karein.</span>';
-
-    if(btn){
-      btn.disabled=true;
-      btn.textContent='✅ ORDER PLACED';
-    }
-
-    setTimeout(function(){
-      form.reset();
-      form.dataset.orderSubmitted='false';
-      if(msg) msg.remove();
-
-      if(btn){
-        btn.disabled=false;
-        btn.textContent=oldText || '✅ CONFIRM MY ORDER';
-      }
-    },5000);
-  },1500);
-}
+    window.location.href='/thank_you';
+  },1800);
+};
 </script>
 <div id="orderPopup" class="order-popup">
   <div class="mini">🛍️ SAMPLE ORDER NOTIFICATION</div>
