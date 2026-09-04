@@ -122,7 +122,7 @@ footer{background:#321522;color:#eadde3;text-align:center;padding:22px;font-size
 <div class="stockbox order-stock">
   <div class="stocktop"><span>🔥 LIMITED STOCK</span><span class="stocknum">23 left</span></div>
   <div class="bar"><i id="stockBar"></i></div>
-  <div class="sampletag">SAMPLE STOCK — replace with your actual stock count</div>
+  
 </div>
 <iframe name="googleSheetFrame" id="googleSheetFrame" style="display:none;width:0;height:0;border:0;"></iframe><form id="form" method="POST" action="https://script.google.com/macros/s/AKfycbyxpBIoLL6IY_Kd_IJG7iqHEEV8ZuvYFAxupgm2fsXpW8YfMPVjB58KUhab1h4Ibu7vlA/exec" target="googleSheetFrame"><div class="fields"><div class="full">
 <label>CHOOSE YOUR BEST DEAL</label>
@@ -209,62 +209,34 @@ document.getElementById('form').onsubmit=function(e){
 
 <script>
 (function(){
-  const el=document.querySelector('.stocknum');
+  const el = document.querySelector('.stocknum');
+  const bar = document.getElementById('stockBar');
   if(!el) return;
 
-  // Stock changes every 7 seconds. Values are never repeated until
-  // the full pool has been used; 23, 34 and 38 are the first values.
-  const pool=[23,34,38,19,27,31,16,36,22,29,18,33,25,14,30,21,37,26,17,32,24,15,28,20,35,13];
-  let index=0;
-  el.textContent=pool[index]+' left';
-
-  setInterval(function(){
-    index++;
-    if(index>=pool.length){
-      // Start a fresh cycle, but never repeat the immediately previous value.
-      index=0;
-      if(pool[index]===pool[pool.length-1]) index=1;
-    }
-    el.textContent=pool[index]+' left';
-  },7000);
-})();
-</script>
-
-<script>
-(function () {
-  const values = [39, 35, 29, 22, 31, 26, 20, 34, 27, 19];
+  // One-way stock sequence: starts at 46 and keeps decreasing.
+  // No number is repeated and the sequence stops at 1.
+  const stockValues = [46,39,26,22,18,15,12,10,8,6,4,3,2,1];
   let i = 0;
 
-  function findStockElements() {
-    return Array.from(document.querySelectorAll('*')).filter(el => {
-      const t = (el.textContent || '').trim();
-      return /^Only\s+\d+\s+left$/i.test(t) || /^Only\s+\d+\s+left$/i.test(t);
-    });
+  function updateStock(){
+    const n = stockValues[i];
+    el.textContent = n + ' left';
+
+    if(bar){
+      bar.style.width = Math.max(4, (n / 46) * 100) + '%';
+    }
   }
 
-  function setStock(n) {
-    findStockElements().forEach(el => {
-      el.textContent = 'Only ' + n + ' left';
-    });
-    // Also update any common stock number/progress elements if present.
-    document.querySelectorAll('.stocknum').forEach(el => {
-      el.textContent = n;
-    });
-  }
+  updateStock();
 
-  function start() {
-    setStock(values[0]);
-    setInterval(function () {
-      i = (i + 1) % values.length;
-      setStock(values[i]);
-    }, 4000);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start);
-  } else {
-    start();
-  }
+  const timer = setInterval(function(){
+    if(i < stockValues.length - 1){
+      i++;
+      updateStock();
+    } else {
+      clearInterval(timer);
+    }
+  }, 7000);
 })();
 </script>
 
