@@ -196,10 +196,8 @@ document.getElementById('form').onsubmit=function(e){
 
   HTMLFormElement.prototype.submit.call(form);
 
-  // Give the Google Sheet request a moment to reach Apps Script,
-  // then send the customer to the dedicated thank-you URL.
   setTimeout(function(){
-    window.location.href='/thank_you';
+    window.location.href='/?thank_you=1';
   },1800);
 };
 </script>
@@ -298,6 +296,26 @@ document.getElementById('form').onsubmit=function(e){
   }
   setTimeout(show, 3500);
   setInterval(show, 9000);
+})();
+</script>
+
+<script>
+(function(){
+  if(new URLSearchParams(window.location.search).get('thank_you') === '1'){
+    document.body.innerHTML = `
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#fff6fa;font-family:Arial,sans-serif;color:#292329;">
+        <div style="width:min(520px,100%);background:#fff;border-radius:24px;padding:34px 24px;text-align:center;box-shadow:0 12px 40px rgba(113,19,69,.12);">
+          <div style="font-size:58px;margin-bottom:12px;">✅</div>
+          <h1 style="margin:0 0 12px;color:#8b245b;font-size:28px;">Order Placed Successfully!</h1>
+          <p style="margin:8px 0;line-height:1.55;">Thank you! Aap ka order successfully receive ho gaya hai.</p>
+          <p style="margin:8px 0;line-height:1.55;"><b>Please dobara order submit na karein.</b></p>
+          <div style="margin-top:20px;padding:14px;border-radius:14px;background:#fff0f6;color:#711345;font-weight:700;">Hamari team aap se confirmation ke liye contact karegi.</div>
+        </div>
+      </div>`;
+    if(window.ttq){
+      ttq.track('CompletePayment');
+    }
+  }
 })();
 </script>
 
