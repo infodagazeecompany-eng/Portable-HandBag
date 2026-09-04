@@ -168,11 +168,19 @@ document.getElementById('form').onsubmit=function(e){
     form.reportValidity();
     return;
   }
+
+  if(form.dataset.orderSubmitted === 'true') return;
+
   const btn=form.querySelector('button[type="submit"]');
+  const oldText=btn ? btn.textContent : '';
+
+  form.dataset.orderSubmitted='true';
+
   if(btn){
     btn.disabled=true;
     btn.textContent='⏳ PLACING ORDER...';
   }
+
   form.action='https://script.google.com/macros/s/AKfycbyxpBIoLL6IY_Kd_IJG7iqHEEV8ZuvYFAxupgm2fsXpW8YfMPVjB58KUhab1h4Ibu7vlA/exec';
   form.method='POST';
   form.target='googleSheetFrame';
@@ -180,11 +188,31 @@ document.getElementById('form').onsubmit=function(e){
   HTMLFormElement.prototype.submit.call(form);
 
   setTimeout(function(){
-    alert('✅ Order placed successfully! Your order has been sent.');
-    if(btn){
-      btn.disabled=false;
-      btn.textContent='✅ CONFIRM MY ORDER';
+    let msg=document.getElementById('orderSuccessMessage');
+    if(!msg){
+      msg=document.createElement('div');
+      msg.id='orderSuccessMessage';
+      msg.style.cssText='margin:14px 0 0;padding:13px 15px;border-radius:12px;background:#e9f9ee;color:#176b36;border:1px solid #a9dfb9;font-weight:800;text-align:center;line-height:1.45;';
+      form.appendChild(msg);
     }
+
+    msg.innerHTML='✅ <b>Order Placed Successfully!</b><br><span style="font-weight:600;font-size:13px;">Aap ka order receive ho gaya hai. Please dobara order submit na karein.</span>';
+
+    if(btn){
+      btn.disabled=true;
+      btn.textContent='✅ ORDER PLACED';
+    }
+
+    setTimeout(function(){
+      form.reset();
+      form.dataset.orderSubmitted='false';
+      if(msg) msg.remove();
+
+      if(btn){
+        btn.disabled=false;
+        btn.textContent=oldText || '✅ CONFIRM MY ORDER';
+      }
+    },5000);
   },1500);
 }
 </script>
