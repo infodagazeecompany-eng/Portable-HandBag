@@ -113,7 +113,7 @@ footer{background:#321522;color:#eadde3;text-align:center;padding:22px;font-size
   <div class="bar"><i id="stockBar"></i></div>
   <div class="sampletag">SAMPLE STOCK — replace with your actual stock count</div>
 </div>
-<form id="form"><div class="fields"><div class="full">
+<iframe name="googleSheetFrame" id="googleSheetFrame" style="display:none;width:0;height:0;border:0;"></iframe><form id="form" method="POST" action="https://script.google.com/macros/s/AKfycbyxpBIoLL6IY_Kd_IJG7iqHEEV8ZuvYFAxupgm2fsXpW8YfMPVjB58KUhab1h4Ibu7vlA/exec" target="googleSheetFrame"><div class="fields"><div class="full">
 <label>CHOOSE YOUR BEST DEAL</label>
 <div class="form-deals">
 <label class="form-deal selected"><input type="radio" name="deal" value="1 Bag — Rs. 1,999" checked><span><b>1 BAG</b><small>Rs. 1,999</small></span></label>
@@ -161,7 +161,32 @@ card.classList.add('selected');
 });
 });
 function goOrder(){document.getElementById('order').scrollIntoView({behavior:'smooth'})}
-document.getElementById('form').onsubmit=function(e){e.preventDefault();alert('Order form ready! Google Sheet URL connect karne ke baad orders automatically save ho sakte hain.')}
+document.getElementById('form').onsubmit=function(e){
+  e.preventDefault();
+  const form=this;
+  if(!form.checkValidity()){
+    form.reportValidity();
+    return;
+  }
+  const btn=form.querySelector('button[type="submit"]');
+  if(btn){
+    btn.disabled=true;
+    btn.textContent='⏳ PLACING ORDER...';
+  }
+  form.action='https://script.google.com/macros/s/AKfycbyxpBIoLL6IY_Kd_IJG7iqHEEV8ZuvYFAxupgm2fsXpW8YfMPVjB58KUhab1h4Ibu7vlA/exec';
+  form.method='POST';
+  form.target='googleSheetFrame';
+
+  HTMLFormElement.prototype.submit.call(form);
+
+  setTimeout(function(){
+    alert('✅ Order placed successfully! Your order has been sent.');
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='✅ CONFIRM MY ORDER';
+    }
+  },1500);
+}
 </script>
 <div id="orderPopup" class="order-popup">
   <div class="mini">🛍️ SAMPLE ORDER NOTIFICATION</div>
